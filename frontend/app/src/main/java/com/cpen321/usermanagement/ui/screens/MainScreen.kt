@@ -1,11 +1,14 @@
 package com.cpen321.usermanagement.ui.screens
 
 import Icon
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cpen321.usermanagement.R
 import com.cpen321.usermanagement.ui.components.MessageSnackbar
 import com.cpen321.usermanagement.ui.components.MessageSnackbarState
@@ -33,7 +37,8 @@ import com.cpen321.usermanagement.ui.theme.LocalSpacing
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onRunningClick: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -42,6 +47,7 @@ fun MainScreen(
         uiState = uiState,
         snackBarHostState = snackBarHostState,
         onProfileClick = onProfileClick,
+        onRunningClick = onRunningClick,
         onSuccessMessageShown = mainViewModel::clearSuccessMessage
     )
 }
@@ -51,6 +57,7 @@ private fun MainContent(
     uiState: MainUiState,
     snackBarHostState: SnackbarHostState,
     onProfileClick: () -> Unit,
+    onRunningClick: () -> Unit,
     onSuccessMessageShown: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,7 +74,10 @@ private fun MainContent(
             )
         }
     ) { paddingValues ->
-        MainBody(paddingValues = paddingValues)
+        MainBody(
+            paddingValues = paddingValues,
+            onRunningClick = onRunningClick
+        )
     }
 }
 
@@ -148,6 +158,7 @@ private fun MainSnackbarHost(
 @Composable
 private fun MainBody(
     paddingValues: PaddingValues,
+    onRunningClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -156,7 +167,19 @@ private fun MainBody(
             .padding(paddingValues),
         contentAlignment = Alignment.Center
     ) {
-        WelcomeMessage()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            WelcomeMessage()
+            
+            Button(
+                onClick = onRunningClick,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("🏃‍♂️ Start Running")
+            }
+        }
     }
 }
 
