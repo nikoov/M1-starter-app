@@ -23,11 +23,15 @@ export class MediaService {
 
   static async deleteImage(url: string): Promise<void> {
     try {
-      if (url.startsWith(IMAGES_DIR)) {
-        const filePath = path.join(process.cwd(), url.substring(1));
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
+      const normalized = url.split(path.sep).join('/');
+      const relative = normalized.startsWith('/') ? normalized.substring(1) : normalized;
+      const filePath = path.isAbsolute(relative)
+        ? relative
+        : path.join(process.cwd(), relative);
+
+      const imagesDirAbs = path.join(process.cwd(), IMAGES_DIR);
+      if (filePath.startsWith(imagesDirAbs) && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
     } catch (error) {
       console.error('Failed to delete old profile picture:', error);
@@ -40,10 +44,17 @@ export class MediaService {
         return;
       }
 
-      const files = fs.readdirSync(IMAGES_DIR);
+      const imagesDirAbs = path.join(process.cwd(), IMAGES_DIR);
+      if (!fs.existsSync(imagesDirAbs)) {
+        return;
+      }
+
+      const files = fs.readdirSync(imagesDirAbs);
       const userFiles = files.filter(file => file.startsWith(userId + '-'));
 
-      await Promise.all(userFiles.map(file => this.deleteImage(file)));
+      await Promise.all(
+        userFiles.map(file => this.deleteImage(path.join(imagesDirAbs, file)))
+      );
     } catch (error) {
       console.error('Failed to delete user images:', error);
     }
