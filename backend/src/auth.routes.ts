@@ -7,6 +7,15 @@ import { validateBody } from './validation.middleware';
 const router = Router();
 const authController = new AuthController();
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Backend server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 router.post(
   '/signup',
   validateBody<AuthenticateUserRequest>(authenticateUserSchema),
